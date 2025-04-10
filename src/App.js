@@ -5,7 +5,7 @@ function App() {
   const [lambdaMessage, setLambdaMessage] = useState('⏳ 로딩 중...');
 
   useEffect(() => {
-    fetch('http://093mfwagdb.execute-api.ap-northeast-2.amazonaws.com/prod/hello') 
+    fetch('https://093mfwagdb.execute-api.ap-northeast-2.amazonaws.com/prod/hello') 
       .then((res) => res.json())
       .then((data) => setLambdaMessage(data.message))
       .catch(() => setLambdaMessage('❌ Lambda API 호출 실패'));
