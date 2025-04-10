@@ -36,4 +36,4 @@ jobs:
             --region ap-northeast-2
 
       - name: Setup API Gateway
-        run: bash .github/scripts/setup-api-gateway.sh
+        run: bash scripts/setup-api-gateway.sh
