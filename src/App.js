@@ -6,8 +6,8 @@ function App() {
 
   useEffect(() => {
     fetch('https://093mfwagdb.execute-api.ap-northeast-2.amazonaws.com/prod/hello') 
-      .then((res) => res.text())
-      .then((data) => setLambdaMessage(data))
+      .then((res) => res.json())
+      .then((data) => setLambdaMessage(data.message))
       .catch(() => setLambdaMessage('❌ Lambda API 호출 실패'));
   }, []);
 
