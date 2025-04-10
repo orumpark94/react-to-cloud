@@ -1,0 +1,35 @@
+name: Deploy Serverless Backend (Lambda + API Gateway)
+
+on:
+  workflow_dispatch:  # 👉 수동 실행만 가능하도록 설정
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Zip Lambda code
+        run: |
+          cd lambda
+          zip -r ../lambda.zip .
+
+      - name: Deploy Lambda to AWS
+        run: |
+          aws lambda create-function \
+            --function-name hello-sjpark \
+            --runtime nodejs18.x \
+            --handler index.handler \
+            --role arn:aws:iam::863676520919:role/lambda-basic-role \
+            --zip-file fileb://lambda.zip \
+            --region ap-northeast-2 \
+            || \
+          aws lambda update-function-code \
+            --function-name hello-sjpark \
+            --zip-file fileb://lambda.zip \
+            --region ap-northeast-2
+
+      - name: Setup API Gateway
+        run: bash .github/scripts/setup-api-gateway.sh
