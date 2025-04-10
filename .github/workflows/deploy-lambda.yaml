@@ -1,0 +1,35 @@
+name: Deploy Lambda Function
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Zip Lambda function code
+        run: |
+          cd lambda
+          zip -r ../lambda.zip .
+
+      - name: Deploy to AWS Lambda
+        run: |
+          aws lambda create-function \
+            --function-name hello-sjpark \
+            --runtime nodejs18.x \
+            --handler index.handler \
+            --role arn:aws:iam::863676520919:role/lambda-basic-role \
+            --zip-file fileb://lambda.zip \
+            --region ap-northeast-2 \
+            || \
+          aws lambda update-function-code \
+            --function-name hello-sjpark \
+            --zip-file fileb://lambda.zip \
+            --region ap-northeast-2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
