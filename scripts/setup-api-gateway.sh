@@ -63,7 +63,7 @@ else
   echo "✅ GET 메서드 이미 존재, 스킵합니다"
 fi
 
-# 5. Lambda 통합
+# 5. Lambda 비프록시 통합
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 LAMBDA_URI="arn:aws:apigateway:$REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:$REGION:$ACCOUNT_ID:function:$LAMBDA_FUNCTION_NAME/invocations"
 
@@ -71,9 +71,10 @@ aws apigateway put-integration \
   --rest-api-id $API_ID \
   --resource-id $HELLO_ID \
   --http-method GET \
-  --type AWS_PROXY \
+  --type AWS \
   --integration-http-method POST \
   --uri "$LAMBDA_URI" \
+  --request-templates '{"application/json":"{\"statusCode\": 200}"}' \
   --region $REGION
 
 # 6. Lambda 권한 부여
@@ -85,7 +86,26 @@ aws lambda add-permission \
   --source-arn "arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/GET/hello" \
   --region $REGION || echo "✅ Lambda 권한 이미 존재"
 
-# 7. OPTIONS 메서드 (CORS 대응)
+# 7. GET 응답 구성 (CORS 헤더 포함)
+aws apigateway put-method-response \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method GET \
+  --status-code 200 \
+  --response-models '{"application/json":"Empty"}' \
+  --response-parameters 'method.response.header.Access-Control-Allow-Origin=true,method.response.header.Access-Control-Allow-Methods=true,method.response.header.Access-Control-Allow-Headers=true' \
+  --region $REGION
+
+aws apigateway put-integration-response \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method GET \
+  --status-code 200 \
+  --response-parameters 'method.response.header.Access-Control-Allow-Origin="\"*\"",method.response.header.Access-Control-Allow-Methods="\"GET,OPTIONS\"",method.response.header.Access-Control-Allow-Headers="\"*\""' \
+  --response-templates '{"application/json":"$input.body"}' \
+  --region $REGION
+
+# 8. OPTIONS 메서드 (CORS 대응)
 OPTIONS_EXISTS=$(aws apigateway get-method \
   --rest-api-id $API_ID \
   --resource-id $HELLO_ID \
@@ -124,19 +144,19 @@ if [ -z "$OPTIONS_EXISTS" ]; then
     --resource-id $HELLO_ID \
     --http-method OPTIONS \
     --status-code 200 \
-    --response-parameters 'method.response.header.Access-Control-Allow-Headers="\"*\"",method.response.header.Access-Control-Allow-Methods="\"GET,OPTIONS\"",method.response.header.Access-Control-Allow-Origin="\"*\""'
+    --response-parameters 'method.response.header.Access-Control-Allow-Headers="\"*\"",method.response.header.Access-Control-Allow-Methods="\"GET,OPTIONS\"",method.response.header.Access-Control-Allow-Origin="\"*\""' \
     --region $REGION
 else
   echo "✅ OPTIONS 메서드 이미 존재, 스킵합니다"
 fi
 
-# 8. 배포
+# 9. 배포
 echo "🚀 API Gateway 배포 중..."
 aws apigateway create-deployment \
   --rest-api-id $API_ID \
   --stage-name $STAGE_NAME \
   --region $REGION
 
-# 9. 출력
+# 10. 출력
 echo "✅ API Gateway 엔드포인트:"
 echo "➡️  https://${API_ID}.execute-api.${REGION}.amazonaws.com/${STAGE_NAME}/hello"
