@@ -11,4 +11,6 @@ AWS에 gitaction을 이용하여 S3 - API Gateway - Lambda 의 구조를 갖는 
 
 ![image](https://github.com/user-attachments/assets/e486c5db-1ec5-40ac-bb9e-53bfae6c1af6)
 
-react app S3 배포 진행
+react app S3 build → deploy
+
+![Uploading image.png…]()
