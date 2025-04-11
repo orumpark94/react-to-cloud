@@ -6,6 +6,10 @@
 
 이 프로젝트는 GitHub Actions를 활용하여 React 애플리케이션을 AWS S3에 정적 웹 호스팅하고, AWS Lambda와 API Gateway를 통해 서버리스 백엔드를 구성하는 자동화된 CI/CD 파이프라인을 구축하는 것을 목표로 합니다.
 
+# 사용 기술 스택
+- **프론트엔드**: React
+- **CI/CD**: GitHub Actions
+- **인프라**: AWS S3, API Gateway, Lambda
 
 # 구성 순서도
 
