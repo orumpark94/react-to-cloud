@@ -1,11 +1,11 @@
-# react-to-cloud
-React-S3을 이용한 정적 웹 호스팅 
+
 
 ![image](https://github.com/user-attachments/assets/8433b15f-fff4-4009-9714-9d07e4229246)
 
 # 구성 목표
 
-AWS에 gitaction을 이용하여 S3 - API Gateway - Lambda 의 구조를 갖는 웹서버를 구축하는 것을 목적으로 한다.
+이 프로젝트는 GitHub Actions를 활용하여 React 애플리케이션을 AWS S3에 정적 웹 호스팅하고, AWS Lambda와 API Gateway를 통해 서버리스 백엔드를 구성하는 자동화된 CI/CD 파이프라인을 구축하는 것을 목표로 합니다.
+
 
 # 구성 순서도
 
