@@ -31,3 +31,19 @@ react app S3 build → deploy
 → 코드 내용
 
 # 실행 결과
+
+![image](https://github.com/user-attachments/assets/81cc1cea-6073-48fe-a1e3-c8b2d0d4896b)
+
+→ s3 버킷 위 react app 
+
+![image](https://github.com/user-attachments/assets/5b1f1845-fcb7-404e-b43a-812ec5a9bec7)
+
+→ Lambda 구성 완료
+
+![image](https://github.com/user-attachments/assets/73ec1c91-67f7-47c0-8513-6ac5c06d145c)
+
+→ API Gateway 구성 완료
+
+![image](https://github.com/user-attachments/assets/52e0d000-86ec-4c6d-a251-58fdcf40077f)
+
+→ 구성 완료된 웹 서버
