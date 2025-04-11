@@ -117,7 +117,7 @@ aws apigateway put-integration-response \
   --resource-id $HELLO_ID \
   --http-method GET \
   --status-code 200 \
-  --response-parameters "method.response.header.Access-Control-Allow-Origin='*',method.response.header.Access-Control-Allow-Methods='GET,OPTIONS',method.response.header.Access-Control-Allow-Headers='*'" \
+  --response-parameters "method.response.header.Access-Control-Allow-Origin=\"'*'\",method.response.header.Access-Control-Allow-Methods=\"'GET,OPTIONS'\",method.response.header.Access-Control-Allow-Headers=\"'*'\"" \
   --response-templates '{"application/json":"$input.body"}' \
   --region $REGION
 
@@ -158,7 +158,7 @@ aws apigateway put-integration-response \
   --resource-id $HELLO_ID \
   --http-method OPTIONS \
   --status-code 200 \
-  --response-parameters "method.response.header.Access-Control-Allow-Headers='*',method.response.header.Access-Control-Allow-Methods='GET,OPTIONS',method.response.header.Access-Control-Allow-Origin='*'" \
+  --response-parameters "method.response.header.Access-Control-Allow-Origin=\"'*'\",method.response.header.Access-Control-Allow-Methods=\"'GET,OPTIONS'\",method.response.header.Access-Control-Allow-Headers=\"'*'\"" \
   --region $REGION
 
 # 9. 배포
