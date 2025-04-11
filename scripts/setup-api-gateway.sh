@@ -45,23 +45,20 @@ else
 fi
 
 # 4. GET 메서드 생성
-METHOD_EXISTS=$(aws apigateway get-method \
+echo "🔄 기존 GET 메서드 삭제 및 재생성 시도..."
+aws apigateway delete-method \
   --rest-api-id $API_ID \
   --resource-id $HELLO_ID \
   --http-method GET \
-  --region $REGION 2>/dev/null || true)
+  --region $REGION 2>/dev/null || true
 
-if [ -z "$METHOD_EXISTS" ]; then
-  echo "🔗 GET 메서드 생성 중..."
-  aws apigateway put-method \
-    --rest-api-id $API_ID \
-    --resource-id $HELLO_ID \
-    --http-method GET \
-    --authorization-type "NONE" \
-    --region $REGION
-else
-  echo "✅ GET 메서드 이미 존재, 스킵합니다"
-fi
+echo "🔗 GET 메서드 생성 중..."
+aws apigateway put-method \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method GET \
+  --authorization-type "NONE" \
+  --region $REGION
 
 # 5. Lambda 비프록시 통합
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
@@ -77,16 +74,35 @@ aws apigateway put-integration \
   --request-templates '{"application/json":"{\"statusCode\": 200}"}' \
   --region $REGION
 
-# 6. Lambda 권한 부여
+# 6. Lambda 권한 부여 전 제거
+aws lambda remove-permission \
+  --function-name $LAMBDA_FUNCTION_NAME \
+  --statement-id apigateway-access-hello \
+  --region $REGION 2>/dev/null || true
+
 aws lambda add-permission \
   --function-name $LAMBDA_FUNCTION_NAME \
   --statement-id apigateway-access-hello \
   --action lambda:InvokeFunction \
   --principal apigateway.amazonaws.com \
   --source-arn "arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/GET/hello" \
-  --region $REGION || echo "✅ Lambda 권한 이미 존재"
+  --region $REGION
 
 # 7. GET 응답 구성 (CORS 헤더 포함)
+aws apigateway delete-method-response \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method GET \
+  --status-code 200 \
+  --region $REGION 2>/dev/null || true
+
+aws apigateway delete-integration-response \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method GET \
+  --status-code 200 \
+  --region $REGION 2>/dev/null || true
+
 aws apigateway put-method-response \
   --rest-api-id $API_ID \
   --resource-id $HELLO_ID \
@@ -106,49 +122,44 @@ aws apigateway put-integration-response \
   --region $REGION
 
 # 8. OPTIONS 메서드 (CORS 대응)
-OPTIONS_EXISTS=$(aws apigateway get-method \
+echo "🔄 OPTIONS 메서드 삭제 후 재설정..."
+aws apigateway delete-method \
   --rest-api-id $API_ID \
   --resource-id $HELLO_ID \
   --http-method OPTIONS \
-  --region $REGION 2>/dev/null || true)
+  --region $REGION 2>/dev/null || true
 
-if [ -z "$OPTIONS_EXISTS" ]; then
-  echo "🛠 OPTIONS 메서드 생성 중 (CORS 대응)..."
+aws apigateway put-method \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method OPTIONS \
+  --authorization-type "NONE" \
+  --region $REGION
 
-  aws apigateway put-method \
-    --rest-api-id $API_ID \
-    --resource-id $HELLO_ID \
-    --http-method OPTIONS \
-    --authorization-type "NONE" \
-    --region $REGION
+aws apigateway put-integration \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method OPTIONS \
+  --type MOCK \
+  --request-templates '{"application/json":"{\"statusCode\": 200}"}' \
+  --region $REGION
 
-  aws apigateway put-integration \
-    --rest-api-id $API_ID \
-    --resource-id $HELLO_ID \
-    --http-method OPTIONS \
-    --type MOCK \
-    --request-templates '{"application/json":"{\"statusCode\": 200}"}' \
-    --region $REGION
+aws apigateway put-method-response \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method OPTIONS \
+  --status-code 200 \
+  --response-models '{"application/json":"Empty"}' \
+  --response-parameters 'method.response.header.Access-Control-Allow-Headers=true,method.response.header.Access-Control-Allow-Methods=true,method.response.header.Access-Control-Allow-Origin=true' \
+  --region $REGION
 
-  aws apigateway put-method-response \
-    --rest-api-id $API_ID \
-    --resource-id $HELLO_ID \
-    --http-method OPTIONS \
-    --status-code 200 \
-    --response-models '{"application/json":"Empty"}' \
-    --response-parameters 'method.response.header.Access-Control-Allow-Headers=true,method.response.header.Access-Control-Allow-Methods=true,method.response.header.Access-Control-Allow-Origin=true' \
-    --region $REGION
-
-  aws apigateway put-integration-response \
-    --rest-api-id $API_ID \
-    --resource-id $HELLO_ID \
-    --http-method OPTIONS \
-    --status-code 200 \
-    --response-parameters "method.response.header.Access-Control-Allow-Headers='*',method.response.header.Access-Control-Allow-Methods='GET,OPTIONS',method.response.header.Access-Control-Allow-Origin='*'" \
-    --region $REGION
-else
-  echo "✅ OPTIONS 메서드 이미 존재, 스킵합니다"
-fi
+aws apigateway put-integration-response \
+  --rest-api-id $API_ID \
+  --resource-id $HELLO_ID \
+  --http-method OPTIONS \
+  --status-code 200 \
+  --response-parameters "method.response.header.Access-Control-Allow-Headers='*',method.response.header.Access-Control-Allow-Methods='GET,OPTIONS',method.response.header.Access-Control-Allow-Origin='*'" \
+  --region $REGION
 
 # 9. 배포
 echo "🚀 API Gateway 배포 중..."
