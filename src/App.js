@@ -5,9 +5,16 @@ function App() {
   const [lambdaMessage, setLambdaMessage] = useState('⏳ 로딩 중...');
 
   useEffect(() => {
-    fetch('https://6cel1rggpk.execute-api.ap-northeast-2.amazonaws.com/prod/hello') 
+    fetch('https://6cel1rggpk.execute-api.ap-northeast-2.amazonaws.com/prod/hello')
       .then((res) => res.json())
-      .then((data) => setLambdaMessage(data.message))
+      .then((data) => {
+        try {
+          const parsed = JSON.parse(data.body); // ⬅️ body 문자열 파싱
+          setLambdaMessage(parsed.message);
+        } catch (e) {
+          setLambdaMessage('❌ 응답 파싱 실패');
+        }
+      })
       .catch(() => setLambdaMessage('❌ Lambda API 호출 실패'));
   }, []);
 
