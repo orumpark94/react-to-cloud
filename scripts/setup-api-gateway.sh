@@ -101,7 +101,7 @@ aws apigateway put-integration-response \
   --resource-id $HELLO_ID \
   --http-method GET \
   --status-code 200 \
-  --response-parameters 'method.response.header.Access-Control-Allow-Origin="\"*\"",method.response.header.Access-Control-Allow-Methods="\"GET,OPTIONS\"",method.response.header.Access-Control-Allow-Headers="\"*\""' \
+  --response-parameters "method.response.header.Access-Control-Allow-Origin='*',method.response.header.Access-Control-Allow-Methods='GET,OPTIONS',method.response.header.Access-Control-Allow-Headers='*'" \
   --response-templates '{"application/json":"$input.body"}' \
   --region $REGION
 
@@ -144,7 +144,7 @@ if [ -z "$OPTIONS_EXISTS" ]; then
     --resource-id $HELLO_ID \
     --http-method OPTIONS \
     --status-code 200 \
-    --response-parameters 'method.response.header.Access-Control-Allow-Headers="\"*\"",method.response.header.Access-Control-Allow-Methods="\"GET,OPTIONS\"",method.response.header.Access-Control-Allow-Origin="\"*\""' \
+    --response-parameters "method.response.header.Access-Control-Allow-Headers='*',method.response.header.Access-Control-Allow-Methods='GET,OPTIONS',method.response.header.Access-Control-Allow-Origin='*'" \
     --region $REGION
 else
   echo "✅ OPTIONS 메서드 이미 존재, 스킵합니다"
