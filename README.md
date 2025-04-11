@@ -15,3 +15,8 @@ react app S3 build → deploy
 
 ![image](https://github.com/user-attachments/assets/f6eb718b-3af8-4f42-af46-2e0c8286947c)
 
+→ react app 배포 완료
+
+![image](https://github.com/user-attachments/assets/f91f77b7-aa5e-4a1a-bea6-ad187818ccbc)
+
+→ 기본 index.html 파일 수정
